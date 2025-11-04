@@ -1,36 +1,156 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Secret Chat
+
+A modern anonymous chat application built with Next.js 15, TypeScript, Tailwind CSS, shadcn/ui, and Framer Motion.
+
+## Features
+
+- **Anonymous Chatting**: No email or phone registration required
+- **Device-based Identity**: Each user identified by localStorage UUID
+- **Gender Selection**: Initial onboarding for gender selection
+- **Real-time Matching**: Queue-based matching system with 30s timeout
+- **Smart Filtering**: Filter by gender and interests with compatibility check
+- **Premium Features**: Male users need premium to match with females
+- **Friend System**: Send friend requests and maintain connections
+- **Cancel Search**: Ability to cancel ongoing match search
+- **Real-time Simulation**: Mock real-time messaging with local state
+- **Modern UI**: Dark mode, smooth animations, responsive design
+
+## Pages
+
+- **Home (/)**: Welcome page with app introduction
+- **Search (/search)**: Find matches with filtering options
+- **Chat (/chat)**: Real-time chat interface with friend requests
+- **Friends (/friends)**: Manage friend connections
+- **Settings (/settings)**: Edit username and clear data
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **UI Components**: shadcn/ui
+- **Animations**: Framer Motion
+- **Icons**: Lucide React
+- **Storage**: localStorage (no backend yet)
 
 ## Getting Started
 
-First, run the development server:
+### Development
 
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install server dependencies:
+```bash
+cd server && npm install && cd ..
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Run the development server:
+```bash
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. In another terminal, start the WebSocket server:
+```bash
+cd server && npm start
+```
 
-## Learn More
+5. Open [http://localhost:3000](http://localhost:3000) in your browser
 
-To learn more about Next.js, take a look at the following resources:
+### Production Deployment (Vercel)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Deploy - Vercel will automatically handle both the Next.js app and WebSocket API routes
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app automatically detects the environment and uses:
+- **Development**: Local WebSocket server (localhost:3001)
+- **Production**: Vercel API routes (/api/socket)
 
-## Deploy on Vercel
+## Project Structure
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+app/
+├── page.tsx          # Home page
+├── search/page.tsx   # Match finding
+├── chat/page.tsx     # Chat interface
+├── friends/page.tsx  # Friends list
+├── settings/page.tsx # User settings
+└── layout.tsx        # Root layout
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+components/
+├── ui/               # shadcn/ui components
+├── FilterModal.tsx   # Match filtering
+├── PremiumDialog.tsx # Premium upgrade
+├── ChatBubble.tsx    # Message display
+├── FriendCard.tsx    # Friend list item
+└── Navigation.tsx    # Bottom navigation
+
+lib/
+├── types.ts          # TypeScript types
+├── storage.ts        # localStorage utilities
+├── matching.ts       # Match finding logic
+└── utils.ts          # General utilities
+```
+
+## Features Implementation
+
+### Anonymous Identity
+- Auto-generated UUID on first visit
+- Stored in localStorage with username
+- No personal information required
+
+### Matching System
+- Gender and interest-based filtering
+- Premium requirement for male→female matching
+- Mock user pool for demonstration
+
+### Chat System
+- Real-time message simulation
+- Friend request functionality
+- Chat history management
+
+### Premium Features
+- Three pricing tiers (Daily, Monthly, Yearly)
+- Mock payment system
+- Unlocks female matching for males
+
+## WebSocket Implementation
+
+The app now includes a complete WebSocket implementation for real-time features:
+
+### Features
+- **Real-time Matching**: Queue-based system with instant notifications
+- **Live Messaging**: Instant message delivery between users
+- **Connection Status**: Online/offline indicators
+- **Graceful Fallback**: Works without WebSocket server (mock mode)
+
+### Architecture
+- **Frontend**: Socket.io-client with React hooks
+- **Backend**: Node.js + Socket.io server
+- **Fallback**: localStorage-based mock system
+
+### WebSocket Events
+- `find_match` - Start looking for a match
+- `cancel_match` - Cancel ongoing search
+- `match_found` - Match discovered
+- `send_message` - Send chat message
+- `message` - Receive chat message
+- `partner_left` - Chat partner disconnected
+
+## Future Enhancements
+
+- Database integration (PostgreSQL/MongoDB)
+- User authentication & profiles
+- Push notifications
+- Image/file sharing
+- Voice messages
+- Video calls
+- Group chats
+- Message encryption
+
+## License
+
+MIT License
