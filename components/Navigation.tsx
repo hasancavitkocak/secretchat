@@ -16,8 +16,8 @@ export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Don't show navigation on home page and onboarding
-  if (pathname === '/' || pathname === '/onboarding') {
+  // Don't show navigation on home page, onboarding, and chat page
+  if (pathname === '/' || pathname === '/onboarding' || pathname === '/chat') {
     return null;
   }
 
@@ -25,9 +25,10 @@ export default function Navigation() {
     <motion.div
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="bg-slate-800/95 backdrop-blur-sm border-t border-slate-700 p-2 flex-shrink-0"
+      className="bg-slate-800/95 backdrop-blur-sm border-t border-slate-700 p-2 flex-shrink-0 safe-area-inset-bottom"
+      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
     >
-      <div className="flex justify-around max-w-sm mx-auto">
+      <div className="flex justify-around max-w-md mx-auto">
         {navItems.slice(1).map((item) => {
           const Icon = item.icon;
           const isActive = pathname === item.path;
@@ -38,14 +39,14 @@ export default function Navigation() {
               onClick={() => router.push(item.path)}
               variant="ghost"
               size="sm"
-              className={`flex flex-col items-center gap-1 p-2 h-auto min-w-0 flex-1 ${
+              className={`flex flex-col items-center gap-1 p-3 h-auto min-w-0 flex-1 rounded-lg transition-all ${
                 isActive 
-                  ? 'text-purple-400 bg-purple-400/10' 
-                  : 'text-white/60 hover:text-white hover:bg-white/5'
+                  ? 'text-purple-400 bg-purple-400/10 scale-105' 
+                  : 'text-white/60 hover:text-white hover:bg-white/5 hover:scale-105'
               }`}
             >
-              <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="text-xs truncate">{item.label}</span>
+              <Icon className="w-5 h-5" />
+              <span className="text-xs font-medium truncate">{item.label}</span>
             </Button>
           );
         })}
