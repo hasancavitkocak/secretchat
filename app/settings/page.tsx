@@ -61,8 +61,8 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-md mx-auto">
+    <div className="h-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 overflow-y-auto">
+      <div className="max-w-md mx-auto pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -241,7 +241,7 @@ export default function SettingsPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
-          className="mt-8 mb-20 text-center"
+          className="mt-8 mb-8 text-center"
         >
           <Button
             onClick={() => router.push('/search')}

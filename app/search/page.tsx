@@ -159,8 +159,8 @@ export default function SearchPage() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
-      <div className="max-w-md mx-auto">
+    <div className="h-full bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 overflow-y-auto">
+      <div className="max-w-md mx-auto pt-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

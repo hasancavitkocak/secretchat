@@ -20,7 +20,7 @@ export default function Navigation() {
   }
 
   return (
-    <div className="bottom-nav">
+    <div className="bg-slate-800/95 backdrop-blur-sm border-t border-slate-700 p-3 flex-shrink-0">
       <div className="flex justify-around max-w-md mx-auto">
         {navItems.slice(1).map((item) => {
           const Icon = item.icon;
@@ -33,9 +33,13 @@ export default function Navigation() {
                 console.log('Navigation clicked:', item.path);
                 router.push(item.path);
               }}
-              className={`nav-button ${isActive ? 'active' : ''}`}
+              className={`flex flex-col items-center gap-1 p-3 rounded-lg transition-all min-w-0 flex-1 ${
+                isActive 
+                  ? 'text-purple-400 bg-purple-400/10' 
+                  : 'text-white/70 hover:text-white hover:bg-white/5'
+              }`}
             >
-              <Icon className="w-6 h-6" />
+              <Icon className="w-5 h-5" />
               <span className="text-xs font-medium">{item.label}</span>
             </button>
           );

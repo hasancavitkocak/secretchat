@@ -117,87 +117,30 @@
     @apply border-border outline-ring/50;
   }
   
-  /* GLOBAL MOBILE FIX - TÜM SAYFALAR İÇİN */
   html, body {
     @apply bg-background text-foreground;
-    height: 100vh;
-    height: -webkit-fill-available;
+    height: 100%;
     overflow: hidden;
   }
   
-  /* Ana container - tüm sayfalar için */
-  #__next, [data-nextjs-scroll-focus-boundary] {
-    height: 100vh;
+  /* Mobile viewport fixes */
+  html {
     height: -webkit-fill-available;
   }
   
-  /* Tüm sayfa container'ları otomatik mobil uyumlu */
-  main {
-    height: 100vh;
-    height: -webkit-fill-available;
-    overflow-y: auto;
-    padding-top: env(safe-area-inset-top, 0);
-    padding-bottom: 12rem; /* Alt menü için çok daha fazla yer */
-  }
-  
-  /* Chat sayfası özel durum */
-  main:has([data-chat-page]) {
-    padding-bottom: env(safe-area-inset-bottom, 0);
+  body {
+    min-height: 100vh;
+    min-height: -webkit-fill-available;
   }
   
   /* Prevent zoom on input focus on iOS */
   input, select, textarea {
-    font-size: 16px !important;
+    font-size: 16px;
   }
   
-  /* Navigation - Basit ve güvenilir */
-  .bottom-nav {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 50;
-    background: rgba(30, 41, 59, 0.95);
-    backdrop-filter: blur(8px);
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 0.75rem;
-    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-  }
-  
-  .nav-button {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.25rem;
-    padding: 0.75rem;
-    border-radius: 0.5rem;
-    transition: all 0.2s;
-    flex: 1;
-    min-width: 0;
-    color: rgba(255, 255, 255, 0.7);
-    background: transparent;
-    border: none;
-    cursor: pointer;
-  }
-  
-  .nav-button:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.05);
-  }
-  
-  .nav-button.active {
-    color: #a855f7;
-    background: rgba(168, 85, 247, 0.1);
-  }
-  
-  /* iOS Safari fixes */
-  @supports (-webkit-touch-callout: none) {
-    html, body {
-      height: -webkit-fill-available;
-    }
-    
-    main {
-      height: -webkit-fill-available;
+  @media (max-width: 640px) {
+    input, select, textarea {
+      font-size: 16px;
     }
   }
 }
