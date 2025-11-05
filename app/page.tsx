@@ -20,7 +20,9 @@ export default function Home() {
       router.push('/onboarding');
       return;
     }
-    setUser(currentUser);
+    
+    // Mevcut kullanıcı varsa direkt search'e yönlendir
+    router.push('/search');
   }, [router]);
 
   const handleStartChat = () => {
