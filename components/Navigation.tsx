@@ -25,8 +25,15 @@ export default function Navigation() {
     <motion.div
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="bg-slate-800/95 backdrop-blur-sm border-t border-slate-700 p-2 flex-shrink-0 safe-area-inset-bottom"
-      style={{ paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))' }}
+      className="bottom-navigation bg-slate-800/95 backdrop-blur-sm border-t border-slate-700 p-2 flex-shrink-0 safe-area-inset-bottom"
+      style={{ 
+        paddingBottom: 'max(0.5rem, env(safe-area-inset-bottom))',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 50
+      }}
     >
       <div className="flex justify-around max-w-md mx-auto">
         {navItems.slice(1).map((item) => {

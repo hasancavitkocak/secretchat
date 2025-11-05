@@ -1,10 +1,11 @@
 'use client';
 
 import { useCallback } from 'react';
+import { io, Socket } from 'socket.io-client';
 import { Message, User } from './types';
 
 class WebSocketManager {
-  private eventSource: EventSource | null = null;
+  private socket: Socket | null = null;
   private isConnected = false;
   private messageCallbacks: ((message: Message) => void)[] = [];
   private matchCallbacks: ((data: { chatId: string; user: User }) => void)[] = [];
@@ -16,130 +17,134 @@ class WebSocketManager {
   private currentUser: User | null = null;
 
   connect(user: User) {
-    if (this.eventSource && this.isConnected) return;
+    if (this.socket?.connected) return;
 
     this.currentUser = user;
     
-    // Server-Sent Events bağlantısı
-    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-    this.eventSource = new EventSource(`${baseUrl}/api/socket?userId=${user.id}`);
+    // Socket.IO bağlantısı - Her zaman Render backend'ini kullan
+    const socketUrl = 'https://secretchat-fr4o.onrender.com';
     
-    this.eventSource.onopen = () => {
-      console.log('SSE connected');
+    console.log('Connecting to Socket.IO server:', socketUrl);
+    
+    this.socket = io(socketUrl, {
+      auth: {
+        userId: user.id,
+        username: user.username,
+        gender: user.gender,
+        isPremium: user.isPremium
+      },
+      transports: ['websocket', 'polling']
+    });
+
+    this.socket.on('connect', () => {
+      console.log('✅ Socket.IO connected to:', socketUrl);
+      console.log('🔗 Socket ID:', this.socket?.id);
+      console.log('👤 User:', user.username, user.gender);
       this.isConnected = true;
-    };
+    });
 
-    this.eventSource.onmessage = (event) => {
-      try {
-        const data = JSON.parse(event.data);
-        this.handleMessage(data);
-      } catch (error) {
-        console.error('Error parsing SSE message:', error);
-      }
-    };
+    this.socket.on('connect_error', (error) => {
+      console.error('❌ Socket.IO connection error:', error);
+    });
 
-    this.eventSource.onerror = () => {
-      console.log('SSE disconnected');
+    this.socket.on('disconnect', (reason) => {
+      console.log('🔌 Socket.IO disconnected:', reason);
       this.isConnected = false;
       this.disconnectCallbacks.forEach(callback => callback());
-    };
+    });
 
+    // Event listeners
+    this.socket.on('message', (message: Message) => {
+      this.messageCallbacks.forEach(callback => callback(message));
+    });
+
+    this.socket.on('match_found', (data: { chatId: string; user: User }) => {
+      console.log('🎉 Match found!', data);
+      this.matchCallbacks.forEach(callback => callback(data));
+    });
+
+    this.socket.on('match_timeout', () => {
+      console.log('⏰ Match timeout - no matches found');
+    });
+
+    this.socket.on('match_error', (error) => {
+      console.log('❌ Match error:', error);
+    });
+
+    this.socket.on('partner_left', () => {
+      this.disconnectCallbacks.forEach(callback => callback());
+    });
+
+    this.socket.on('friend_request_received', (data) => {
+      this.friendRequestCallbacks.forEach(callback => callback(data));
+    });
+
+    this.socket.on('friend_request_accepted', (data) => {
+      this.friendAcceptedCallbacks.forEach(callback => callback(data));
+    });
+
+    this.socket.on('friend_request_rejected', (data) => {
+      this.friendRejectedCallbacks.forEach(callback => callback(data));
+    });
+
+    this.socket.on('friend_removed', (data) => {
+      this.friendRemovedCallbacks.forEach(callback => callback(data));
+    });
   }
 
-  private handleMessage(data: any) {
-    switch (data.type) {
-      case 'connected':
-        console.log('Connected to server');
-        break;
-      case 'message':
-        this.messageCallbacks.forEach(callback => callback(data.message));
-        break;
-      case 'match_found':
-        this.matchCallbacks.forEach(callback => callback(data));
-        break;
-      case 'match_timeout':
-        // Timeout handling
-        break;
-      case 'partner_left':
-        this.disconnectCallbacks.forEach(callback => callback());
-        break;
-      case 'friend_request_received':
-        this.friendRequestCallbacks.forEach(callback => callback(data));
-        break;
-      case 'friend_request_accepted':
-        this.friendAcceptedCallbacks.forEach(callback => callback(data));
-        break;
-      case 'friend_request_rejected':
-        this.friendRejectedCallbacks.forEach(callback => callback(data));
-        break;
-      case 'friend_removed':
-        this.friendRemovedCallbacks.forEach(callback => callback(data));
-        break;
-    }
-  }
 
-  private async apiCall(action: string, data: any = {}) {
-    if (!this.currentUser) return;
-
-    try {
-      const response = await fetch('/api/socket', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          action,
-          userId: this.currentUser.id,
-          data
-        })
-      });
-      
-      return await response.json();
-    } catch (error) {
-      console.error('API call error:', error);
-      return { error: 'Network error' };
-    }
-  }
 
   disconnect() {
-    if (this.eventSource) {
-      this.eventSource.close();
-      this.eventSource = null;
+    if (this.socket) {
+      this.socket.disconnect();
+      this.socket = null;
       this.isConnected = false;
     }
   }
 
   // Mesaj gönder
-  async sendMessage(chatId: string, content: string) {
-    return await this.apiCall('send_message', {
-      chatId,
-      content,
-      timestamp: Date.now()
-    });
+  sendMessage(chatId: string, content: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('send_message', {
+        chatId,
+        content,
+        timestamp: Date.now()
+      });
+    }
   }
 
   // Eşleşme ara
-  async findMatch(filters: any) {
-    return await this.apiCall('find_match', {
-      ...filters,
-      user: this.currentUser
-    });
+  findMatch(filters: any) {
+    console.log('🔍 Finding match with filters:', filters);
+    console.log('🔗 Socket connected:', this.socket?.connected);
+    
+    if (this.socket?.connected) {
+      this.socket.emit('find_match', filters);
+      console.log('📤 Match request sent');
+    } else {
+      console.error('❌ Socket not connected, cannot find match');
+    }
   }
 
   // Aramayı iptal et
-  async cancelMatch() {
-    return await this.apiCall('cancel_match');
+  cancelMatch() {
+    if (this.socket?.connected) {
+      this.socket.emit('cancel_match');
+    }
   }
 
   // Chat'e katıl
   joinChat(chatId: string) {
-    // SSE'de otomatik join
-    console.log('Joined chat:', chatId);
+    if (this.socket?.connected) {
+      this.socket.emit('join_chat', chatId);
+    }
   }
 
   // Chat'ten ayrıl
-  async leaveChat(chatId: string) {
-    return await this.apiCall('leave_chat', { chatId });
+  leaveChat(chatId: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('leave_chat', chatId);
+    }
   }
 
   // Event listeners
@@ -165,38 +170,46 @@ class WebSocketManager {
   }
 
   // Arkadaşlık isteği gönder
-  async sendFriendRequest(chatId: string, targetUserId: string, targetUsername: string) {
-    return await this.apiCall('send_friend_request', {
-      chatId,
-      targetUserId,
-      targetUsername
-    });
+  sendFriendRequest(chatId: string, targetUserId: string, targetUsername: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('send_friend_request', {
+        chatId,
+        targetUserId,
+        targetUsername
+      });
+    }
   }
 
   // Arkadaşlık isteğini kabul et
-  async acceptFriendRequest(fromUserId: string, fromUsername: string, chatId: string) {
-    return await this.apiCall('accept_friend_request', {
-      fromUserId,
-      fromUsername,
-      chatId
-    });
+  acceptFriendRequest(fromUserId: string, fromUsername: string, chatId: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('accept_friend_request', {
+        fromUserId,
+        fromUsername,
+        chatId
+      });
+    }
   }
 
   // Arkadaşlık isteğini reddet
-  async rejectFriendRequest(fromUserId: string, fromUsername: string, chatId: string) {
-    return await this.apiCall('reject_friend_request', {
-      fromUserId,
-      fromUsername,
-      chatId
-    });
+  rejectFriendRequest(fromUserId: string, fromUsername: string, chatId: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('reject_friend_request', {
+        fromUserId,
+        fromUsername,
+        chatId
+      });
+    }
   }
 
   // Arkadaşı sil
-  async removeFriend(friendId: string, friendUsername: string) {
-    return await this.apiCall('remove_friend', {
-      friendId,
-      friendUsername
-    });
+  removeFriend(friendId: string, friendUsername: string) {
+    if (this.socket?.connected) {
+      this.socket.emit('remove_friend', {
+        friendId,
+        friendUsername
+      });
+    }
   }
 
   // Event listeners
@@ -229,7 +242,7 @@ class WebSocketManager {
   }
 
   isSocketConnected(): boolean {
-    return this.isConnected && this.eventSource?.readyState === EventSource.OPEN;
+    return this.isConnected && this.socket?.connected === true;
   }
 }
 
