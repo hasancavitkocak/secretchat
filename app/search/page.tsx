@@ -218,42 +218,40 @@ export default function SearchPage() {
           </Button>
 
           {/* Test için mock eşleşme */}
-          {process.env.NODE_ENV === 'development' && (
-            <Button
-              onClick={() => {
-                const mockChatId = `test_chat_${Date.now()}`;
-                const mockPartner = {
-                  id: 'test_user_123',
-                  username: 'TestUser',
-                  gender: user?.gender === 'male' ? 'female' : 'male',
-                  interests: [],
-                  isPremium: false
-                };
-                
-                const newChat = {
-                  id: mockChatId,
-                  participants: [user!.id, mockPartner.id],
-                  messages: [],
-                  isActive: true
-                };
-                
-                const existingChats = getChats();
-                saveChats([...existingChats, newChat]);
-                setCurrentChatId(mockChatId);
-                
-                localStorage.setItem('current_partner', JSON.stringify({
-                  id: mockPartner.id,
-                  username: mockPartner.username
-                }));
-                
-                router.push('/chat');
-              }}
-              variant="secondary"
-              className="w-full bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl py-4"
-            >
-              🧪 Test Chat (Dev Only)
-            </Button>
-          )}
+          <Button
+            onClick={() => {
+              const mockChatId = `test_chat_${Date.now()}`;
+              const mockPartner = {
+                id: 'test_user_123',
+                username: 'TestUser',
+                gender: user?.gender === 'male' ? 'female' : 'male',
+                interests: [],
+                isPremium: false
+              };
+              
+              const newChat = {
+                id: mockChatId,
+                participants: [user!.id, mockPartner.id],
+                messages: [],
+                isActive: true
+              };
+              
+              const existingChats = getChats();
+              saveChats([...existingChats, newChat]);
+              setCurrentChatId(mockChatId);
+              
+              localStorage.setItem('current_partner', JSON.stringify({
+                id: mockPartner.id,
+                username: mockPartner.username
+              }));
+              
+              router.push('/chat');
+            }}
+            variant="secondary"
+            className="w-full bg-yellow-600 hover:bg-yellow-700 text-white rounded-xl py-4"
+          >
+            🧪 Test Chat
+          </Button>
         </motion.div>
 
         <motion.div

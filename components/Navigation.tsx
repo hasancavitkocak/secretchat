@@ -14,8 +14,8 @@ export default function Navigation() {
   const pathname = usePathname();
   const router = useRouter();
 
-  // Don't show navigation on home page, onboarding, and chat page
-  if (pathname === '/' || pathname === '/onboarding' || pathname === '/chat') {
+  // Don't show navigation on home page and onboarding
+  if (pathname === '/' || pathname === '/onboarding') {
     return null;
   }
 

@@ -263,8 +263,14 @@ export default function ChatPage() {
     setCurrentChat({ ...currentChat, messages: [...currentChat.messages, newMessage] });
 
     // WebSocket ile de gönder
+    console.log('💬 Sending message:', messageContent);
+    console.log('🔗 WebSocket connected:', isConnected());
+    
     if (isConnected()) {
       wsSendMessage(currentChat.id, messageContent);
+      console.log('📤 Message sent via WebSocket');
+    } else {
+      console.log('❌ WebSocket not connected, message only saved locally');
     }
   };
 
@@ -404,7 +410,11 @@ export default function ChatPage() {
         </div>
         
         <div className="flex gap-1">
-          {!friendRequestSent && (
+          {friendRequestSent ? (
+            <div className="bg-green-600/20 text-green-300 px-3 py-1 rounded-full text-xs flex items-center">
+              ✓ Friends
+            </div>
+          ) : (
             <Button
               onClick={sendFriendRequest}
               variant="outline"

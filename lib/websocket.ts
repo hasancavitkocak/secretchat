@@ -104,12 +104,19 @@ class WebSocketManager {
 
   // Mesaj gönder
   sendMessage(chatId: string, content: string) {
+    console.log('📤 Attempting to send message:', content);
+    console.log('🔗 Socket connected:', this.socket?.connected);
+    console.log('💬 Chat ID:', chatId);
+    
     if (this.socket?.connected) {
       this.socket.emit('send_message', {
         chatId,
         content,
         timestamp: Date.now()
       });
+      console.log('✅ Message emitted to server');
+    } else {
+      console.error('❌ Socket not connected, cannot send message');
     }
   }
 
